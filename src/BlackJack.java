@@ -67,18 +67,54 @@ public class BlackJack{
     int boardWidth = 600;
     int boardHeight = boardWidth;
 
-    JFrame frame =new JFrame("Black Jack");
+    int cardWidth = 110;
+    int cardHeight = 154;
 
+    JFrame frame =new JFrame("Black Jack");
+    JPanel gamePanel = new JPanel(){
+       
+       
+        @Override
+        public void paintComponent(Graphics g) {
+            super.paintComponent(g);
+
+            //draw hidden card
+            Image hiddenCardImg = new ImageIcon(getClass().getResource("./cards/BACK.png")).getImage();
+            g.drawImage(hiddenCardImg,20,20,cardWidth,cardHeight,null);
+
+        }
+    };
+
+
+    JPanel buttonPanel = new JPanel();
+    JButton hitButton = new JButton("Hit");
+    JButton stayButton = new JButton("Stay");
 
 
     BlackJack(){
         startGame();
+        
 
+        //-----------create fame---------
         frame.setVisible(true);
         frame.setSize(boardWidth,boardHeight);
         frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
+        frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+        //---------------set colour-------
+        gamePanel.setLayout(new BorderLayout());
+        gamePanel.setBackground(new Color(53,101,77));
+        frame.add(gamePanel);
+
+
+        //----------------button-----------
+        hitButton.setFocusable(false);
+        buttonPanel.add(hitButton);
+        stayButton.setFocusable(false);
+        buttonPanel.add(stayButton);
+        frame.add(buttonPanel,BorderLayout.SOUTH);
 
 
 
