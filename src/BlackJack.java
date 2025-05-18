@@ -87,6 +87,9 @@ public class BlackJack{
 
             //--------------draw hidden card---
                 Image hiddenCardImg = new ImageIcon(getClass().getResource("./cards/BACK.png")).getImage();
+                if(!stayButton.isEnabled()){
+                    hiddenCardImg = new ImageIcon(getClass().getResource(hiddenCard.getImagePath())).getImage();
+                }
                 g.drawImage(hiddenCardImg,20,20,cardWidth,cardHeight,null);
 
 
@@ -161,19 +164,39 @@ public class BlackJack{
         hitButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                Card card = deck.remove(deck.size()-1);
-               playerSum = card.getValue();
+               playerSum += card.getValue();
                playerAceCount += card.isAce()? 1:0;
                playerHand.add(card);
                if(reducePlayerAce()>21){
                 hitButton.setEnabled(false);
                }
+
                gamePanel.repaint();
 
 
             }
+            
         });
 
-         gamePanel.repaint();
+        stayButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                hitButton.setEnabled(false);
+                stayButton.setEnabled(false);
+
+                while(dealerSum <17){
+                    Card card = deck.remove(deck.size()-1);
+                    dealerSum += card.getValue();
+                    dealerAceCount += card.isAce()? 1:0;
+                    dealerHand.add(card);
+                }
+                  gamePanel.repaint();
+
+            }
+        });
+
+        
+
+        gamePanel.repaint(); 
 
    }
 
@@ -280,6 +303,17 @@ public int reducePlayerAce(){
 
     return playerSum; 
 }
+
+
+public int reduceDealerAce(){
+    while(dealerSum > 21 && dealerAceCount > 0){
+        dealerSum -= 10;
+        dealerAceCount -= 1;
+    }
+
+    return dealerSum; 
+}
+
 
 
 
