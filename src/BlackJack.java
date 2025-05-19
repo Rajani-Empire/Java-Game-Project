@@ -24,10 +24,11 @@ public class BlackJack{
 
        
 
-        // --------Sum of the cards-----------
+        
         public String toString(){
             return value+"-"+type;
         }
+
 
        public int getValue() {
            if ("AJQK".contains(value)) {
@@ -75,6 +76,17 @@ public class BlackJack{
     int cardHeight = 154;
 
     JFrame frame =new JFrame("Black Jack");
+
+
+    //--------------additional feacher---------
+    int playerWins = 0;            
+    int dealerWins = 0;            
+    int playerBalance = 1000;      
+    int currentBet = 0;            
+
+    JLabel statusLabel = new JLabel();             
+    JLabel scoreLabel = new JLabel();              
+    JLabel balanceLabel = new JLabel();
     
     JPanel gamePanel = new JPanel(){
        
@@ -93,7 +105,7 @@ public class BlackJack{
                 g.drawImage(hiddenCardImg,20,20,cardWidth,cardHeight,null);
 
 
-            //----------------draw dealerhand card-----
+            //----------------dealerhand card image-----
 
              for(int i=0 ;i<dealerHand.size(); i++){
                   Card card = dealerHand.get(i);
@@ -103,7 +115,7 @@ public class BlackJack{
              }
 
 
-            //--------------draw player hand----------
+            //-------------- player hand image----------
              
             for(int i=0 ;i<playerHand.size(); i++){
                 Card card = playerHand.get(i);
@@ -122,23 +134,36 @@ public class BlackJack{
                  String message = "";
                  if(playerSum > 21){
                    message = "You Lose!";
+                    dealerWins++;
+                    playerBalance -= currentBet;  
+
                  }
                  else if(dealerSum >21){
                     message = "You Win!";
+                    playerWins++;                            
+                    playerBalance += currentBet;
                  }
+
                  else if(playerSum == dealerSum){
                     message = "Tie!";
                  }
+
                  else if(playerSum > dealerSum){
                     message = "You win!";
+                    playerWins++;
+                    playerBalance += currentBet;
                  }
                  else if(playerSum <  dealerSum){
                     message = "You Lose!";
+                    dealerWins++; 
+                    playerBalance -= currentBet; 
                  }
 
                  g.setFont(new Font("Arial",Font.PLAIN,30));
                  g.setColor(Color.white);
                  g.drawString(message,220,250);
+
+                 updateStatus();   
             }
 
 
@@ -160,6 +185,8 @@ public class BlackJack{
     JPanel buttonPanel = new JPanel();
     JButton hitButton = new JButton("Hit");
     JButton stayButton = new JButton("Stay");
+    JButton restartButton = new JButton("Restart");
+
 
 
     BlackJack(){
@@ -170,7 +197,7 @@ public class BlackJack{
         frame.setVisible(true);
         frame.setSize(boardWidth,boardHeight);
         frame.setLocationRelativeTo(null);
-        frame.setResizable(true);
+        frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
@@ -186,7 +213,16 @@ public class BlackJack{
         stayButton.setFocusable(false);
         buttonPanel.add(stayButton);
         frame.add(buttonPanel,BorderLayout.SOUTH);
+        restartButton.setFocusable(false);
+        buttonPanel.add(restartButton);
 
+
+        JPanel infoPanel = new JPanel();                           
+        infoPanel.setLayout(new GridLayout(3, 1));                 
+        infoPanel.add(statusLabel);                                
+        infoPanel.add(scoreLabel);                                 
+        infoPanel.add(balanceLabel);                               
+        frame.add(infoPanel, BorderLayout.NORTH); 
         
 
         //-----------------button action--------
@@ -198,6 +234,7 @@ public class BlackJack{
                playerHand.add(card);
                if(reducePlayerAce()>21){
                 hitButton.setEnabled(false);
+                 stayButton.setEnabled(false);
                }
 
                gamePanel.repaint();
@@ -223,11 +260,57 @@ public class BlackJack{
             }
         });
 
-        
 
+          restartButton.addActionListener(new ActionListener() { 
+            public void actionPerformed(ActionEvent e) {
+                  if (playerBalance <= 0) {
+                    JOptionPane.showMessageDialog(frame, "Game Over! You're out of money.");
+                    System.exit(0);                               
+                }
+                promptBet();   
+                restartGame(); 
+            }
+        });
+
+        
+        promptBet();                                      
+        startGame();
+        updateStatus(); 
         gamePanel.repaint(); 
 
    }
+
+   public void promptBet() {                                      
+        while (true) {
+            String input = JOptionPane.showInputDialog(frame, "Enter your bet amount: ");
+            try {
+                int bet = Integer.parseInt(input);
+                if (bet > 0 && bet <= playerBalance) {
+                    currentBet = bet;
+                    break;
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid bet. Try again.");
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "Please enter a number.");
+            }
+        }
+    }
+
+    public void updateStatus() {                                    
+        scoreLabel.setText("Player Wins: " + playerWins + " | Dealer Wins: " + dealerWins);
+        balanceLabel.setText("Balance: $" + playerBalance + " | Bet: $" + currentBet);
+    }
+
+
+
+    public void restartGame() {
+        hitButton.setEnabled(true);
+        stayButton.setEnabled(true);
+        startGame();
+        updateStatus();                                            
+        gamePanel.repaint();
+    }
 
 
    public void startGame(){
